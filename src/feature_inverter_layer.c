@@ -29,6 +29,27 @@ static void main_window_load(Window *window) {
   layer_add_child(window_layer, inverter_layer_get_layer(s_inverter_layer));
 }
 
+static void update_time() {
+  // Get a tm structure
+  time_t temp = time(NULL); 
+  struct tm *tick_time = localtime(&temp);
+
+  // Create a long-lived buffer
+  static char buffer[] = "00:00";
+
+  // Write the current hours and minutes into the buffer
+  if(clock_is_24h_style() == true) {
+    // Use 24 hour format
+    strftime(buffer, sizeof("00:00"), "%H:%M", tick_time);
+  } else {
+    // Use 12 hour format
+    strftime(buffer, sizeof("00:00"), "%I:%M", tick_time);
+  }
+
+  // Display this time on the TextLayer
+  text_layer_set_text(s_time_layer, buffer);
+}
+
 static void flipLayer(){
   Layer * inverter = inverter_layer_get_layer(s_inverter_layer);
   bool hidden = layer_get_hidden(inverter);
@@ -83,6 +104,9 @@ static void timer_callback(void *data) {
 
   app_timer_register(ACCEL_STEP_MS, timer_callback, NULL);
 }
+static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
+  update_time();
+}
 
 static void main_window_unload(Window *window) {
   text_layer_destroy(s_time_layer);
@@ -126,6 +150,8 @@ static void init() {
   
   accel_data_service_subscribe(0, NULL);
   app_timer_register(ACCEL_STEP_MS, timer_callback, NULL);
+  tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
+  update_time();
   
   app_message_register_inbox_received(inbox_received_callback);
   app_message_register_outbox_failed(outbox_failed_callback);
