@@ -19,9 +19,11 @@ uint64_t lastTapTime = 0;
 static void main_window_load(Window *window) {
   Layer *window_layer = window_get_root_layer(window);
   GRect bounds = layer_get_frame(window_layer);
-
+  
+  int16_t textHeight       = 50;
+  int16_t textHeightMargin = 5;
   // Create time TextLayer
-  s_time_layer = text_layer_create(GRect(0, 108, 144, 50));
+  s_time_layer = text_layer_create(GRect(0, bounds.size.h - textHeight - textHeightMargin*2 , bounds.size.w, textHeight));
   text_layer_set_background_color(s_time_layer, GColorClear);
   text_layer_set_text_color(s_time_layer, GColorBlack);
   text_layer_set_text(s_time_layer, "00:00");
@@ -30,12 +32,16 @@ static void main_window_load(Window *window) {
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_time_layer));
 
   s_image_bitmap = gbitmap_create_with_resource(RESOURCE_ID_BLACK_PEBBLE_MAGNET_2);
-  s_image_layer = bitmap_layer_create(GRect(0, 0, 144, 110));
+  GRect imageDisplayRect = GRect(0, 0, 144, 110);
+    // Use GCompOpClear to display the black portions of the image
+  s_image_layer = bitmap_layer_create(imageDisplayRect);
   bitmap_layer_set_bitmap(s_image_layer, s_image_bitmap);
+  bitmap_layer_set_compositing_mode(s_image_layer, GCompOpClear);
   bitmap_layer_set_alignment(s_image_layer, GAlignCenter);
   layer_add_child(window_layer, bitmap_layer_get_layer(s_image_layer));
   
-  s_inverter_layer = inverter_layer_create(GRect(0, -60, bounds.size.w, bounds.size.h));
+  GRect inverterRect = GRect(0, 0, bounds.size.w, bounds.size.h - textHeight - textHeightMargin*2);
+  s_inverter_layer = inverter_layer_create(inverterRect);
   layer_set_hidden(inverter_layer_get_layer(s_inverter_layer), true);
   layer_add_child(window_layer, inverter_layer_get_layer(s_inverter_layer));
 }
