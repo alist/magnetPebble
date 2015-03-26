@@ -1,0 +1,20 @@
+{
+    "appKeys": {},
+    "capabilities": [
+        ""
+    ],
+    "companyName": "atlex2@gmail.com",
+    "longName": "T_INVERTER_LAYER",
+    "projectType": "native",
+    "resources": {
+        "media": []
+    },
+    "sdkVersion": "3",
+    "shortName": "T_INVERTER_LAYER",
+    "uuid": "08da32e0-0f77-4009-885c-3f0c87f4aa59",
+    "versionCode": 1,
+    "versionLabel": "1.0",
+    "watchapp": {
+        "watchface": false
+    }
+}
