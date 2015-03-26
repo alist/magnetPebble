@@ -21,7 +21,7 @@ static void main_window_load(Window *window) {
   GRect bounds = layer_get_frame(window_layer);
   
   int16_t textHeight       = 50;
-  int16_t textHeightMargin = 5;
+  int16_t textHeightMargin = 4;
   // Create time TextLayer
   s_time_layer = text_layer_create(GRect(0, bounds.size.h - textHeight - textHeightMargin*2 , bounds.size.w, textHeight));
   text_layer_set_background_color(s_time_layer, GColorClear);
