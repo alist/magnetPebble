@@ -32,23 +32,48 @@ static void main_window_load(Window *window) {
   layer_add_child(window_layer, text_layer_get_layer(s_text_above));
 }
 
+static void flipLayer(){
+  Layer * inverter = inverter_layer_get_layer(s_inverter_layer);
+  bool hidden = layer_get_hidden(inverter);
+  layer_set_hidden(inverter, !hidden);
+}
+
+static void actuateNow(){
+  flipLayer();
+
+  static const uint32_t const segments[] = { 50, 1};
+  VibePattern pat = {
+    .durations = segments,
+    .num_segments = ARRAY_LENGTH(segments),
+  };
+  vibes_cancel();
+  vibes_enqueue_custom_pattern(pat);
+}
+
+// Write message to buffer & send
+void send_message(void){
+  DictionaryIterator *iter;
+  
+  app_message_outbox_begin(&iter);
+  dict_write_uint8(iter, TAP_HAPPENED, 0x1);
+  
+  dict_write_end(iter);
+  app_message_outbox_send();
+}
+
+static void perceiveNow(){
+  flipLayer();
+  send_message();
+}
+
 static void processDataPoint(AccelData dataPoint){
   if (abs(dataPoint.z) > 1500){
     if (abs(dataPoint.timestamp - lastTapTime) > MIN_TAP_PERIOD_MS){
       lastTapTime = dataPoint.timestamp;
-    
-      Layer * inverter = inverter_layer_get_layer(s_inverter_layer);
-      bool hidden = layer_get_hidden(inverter);
-      layer_set_hidden(inverter, !hidden);
 
-      static const uint32_t const segments[] = { 50, 1};
-      VibePattern pat = {
-        .durations = segments,
-        .num_segments = ARRAY_LENGTH(segments),
-      };
-      vibes_enqueue_custom_pattern(pat);
+      perceiveNow();
 
-      APP_LOG(APP_LOG_LEVEL_DEBUG, "x %i y %i z %i, time %lu", dataPoint.x,dataPoint.y,dataPoint.z, (unsigned long)dataPoint.timestamp);
+      // APP_LOG(APP_LOG_LEVEL_DEBUG, "x %i y %i z %i, time %lu", dataPoint.x,dataPoint.y,dataPoint.z, (unsigned long)dataPoint.timestamp);
     }
   }
 }
@@ -69,7 +94,6 @@ static void main_window_unload(Window *window) {
 }
 
 static void inbox_received_callback(DictionaryIterator *iterator, void *context) {
-  APP_LOG(APP_LOG_LEVEL_INFO, "Message received!");
     // Get the first pair
   Tuple *t = dict_read_first(iterator);
 
@@ -78,17 +102,14 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
     // Process this pair's key
     switch (t->key) {
       case TAP_HAPPENED:
-        APP_LOG(APP_LOG_LEVEL_INFO, "TAP_HAPPENED received with value %d", (int)t->value->int32);
+        // APP_LOG(APP_LOG_LEVEL_INFO, "TAP_HAPPENED received with value %d", (int)t->value->int32);
+        actuateNow();
         break;
     }
 
     // Get next pair, if any
     t = dict_read_next(iterator);
   }
-}
-
-static void inbox_dropped_callback(AppMessageResult reason, void *context) {
-  APP_LOG(APP_LOG_LEVEL_ERROR, "Message dropped!");
 }
 
 static void outbox_failed_callback(DictionaryIterator *iterator, AppMessageResult reason, void *context) {
@@ -111,9 +132,10 @@ static void init() {
   app_timer_register(ACCEL_STEP_MS, timer_callback, NULL);
   
   app_message_register_inbox_received(inbox_received_callback);
-  app_message_register_inbox_dropped(inbox_dropped_callback);
   app_message_register_outbox_failed(outbox_failed_callback);
   app_message_register_outbox_sent(outbox_sent_callback);
+
+  app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
 }
 
 static void deinit() {
