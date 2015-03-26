@@ -3,7 +3,7 @@
 #define ACCEL_STEP_MS 10
 #define MIN_TAP_PERIOD_MS 100
 
-#define TAP_HAPPENED 0
+#define TAP_HAPPENED 1
 
 
 static Window *s_main_window;
@@ -36,8 +36,7 @@ static void processDataPoint(AccelData dataPoint){
   if (abs(dataPoint.z) > 1500){
     if (abs(dataPoint.timestamp - lastTapTime) > MIN_TAP_PERIOD_MS){
       lastTapTime = dataPoint.timestamp;
-
-      // APP_LOG(APP_LOG_LEVEL_DEBUG, "x %i y %i z %i, time %lu", dataPoint.x,dataPoint.y,dataPoint.z, (unsigned long)dataPoint.timestamp);
+    
       Layer * inverter = inverter_layer_get_layer(s_inverter_layer);
       bool hidden = layer_get_hidden(inverter);
       layer_set_hidden(inverter, !hidden);
@@ -49,6 +48,7 @@ static void processDataPoint(AccelData dataPoint){
       };
       vibes_enqueue_custom_pattern(pat);
 
+      APP_LOG(APP_LOG_LEVEL_DEBUG, "x %i y %i z %i, time %lu", dataPoint.x,dataPoint.y,dataPoint.z, (unsigned long)dataPoint.timestamp);
     }
   }
 }
