@@ -9,7 +9,13 @@
     "longName": "Magnet",
     "projectType": "native",
     "resources": {
-        "media": []
+        "media": [
+            {
+                "file": "images/pebbleMagnet.png",
+                "name": "PEBBLE_MAGNET",
+                "type": "png"
+            }
+        ]
     },
     "sdkVersion": "3",
     "shortName": "Magnet",
