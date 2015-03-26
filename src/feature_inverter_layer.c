@@ -29,10 +29,10 @@ static void main_window_load(Window *window) {
   text_layer_set_text_alignment(s_time_layer, GTextAlignmentCenter);
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_time_layer));
 
-  s_image_bitmap = gbitmap_create_with_resource(PEBBLE_MAGNET);
-  s_image_layer = bitmap_layer_create(bounds);
+  s_image_bitmap = gbitmap_create_with_resource(RESOURCE_ID_PEBBLE_MAGNET);
+  s_image_layer = bitmap_layer_create(GRect(0, 0, 144, 110));
   bitmap_layer_set_bitmap(s_image_layer, s_image_bitmap);
-  bitmap_layer_set_alignment(s_image_layer, GAlignTop);
+  bitmap_layer_set_alignment(s_image_layer, GAlignCenter);
   layer_add_child(window_layer, bitmap_layer_get_layer(s_image_layer));
   
   s_inverter_layer = inverter_layer_create(GRect(0, -60, bounds.size.w, bounds.size.h));
