@@ -11,9 +11,9 @@
     "resources": {
         "media": [
             {
-                "file": "images/pebbleMagnet.png",
-                "name": "PEBBLE_MAGNET",
-                "type": "png"
+                "file": "images/pebbleMagnet2.png",
+                "name": "BLACK_PEBBLE_MAGNET_2",
+                "type": "png-trans"
             }
         ]
     },
