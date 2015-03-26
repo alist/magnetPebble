@@ -1,20 +1,26 @@
 {
-    "appKeys": {},
+    "appKeys": {
+        "TAP_HAPPENED": 0
+    },
     "capabilities": [
         ""
     ],
-    "companyName": "atlex2@gmail.com",
-    "longName": "T_INVERTER_LAYER",
+    "companyName": "Headtalk Inc",
+    "longName": "Magnet",
     "projectType": "native",
     "resources": {
         "media": []
     },
     "sdkVersion": "3",
-    "shortName": "T_INVERTER_LAYER",
+    "shortName": "Magnet",
+    "targetPlatforms": [
+        "aplite",
+        "basalt"
+    ],
     "uuid": "08da32e0-0f77-4009-885c-3f0c87f4aa59",
     "versionCode": 1,
     "versionLabel": "1.0",
     "watchapp": {
-        "watchface": false
+        "watchface": true
     }
 }
