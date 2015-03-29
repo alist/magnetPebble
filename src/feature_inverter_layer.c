@@ -182,6 +182,8 @@ static void init() {
   setupAlgorithmForCutoffAndSampleInterval(20.0f, 0.01f);
   hpf filter = knock_detector_get_algorithm();
   //APP_LOG(APP_LOG_LEVEL_INFO, "FILTER fc value %i alpha value*100= %i", (int)filter.fc, (int)(filter.alpha*100)); //so this works
+
+  app_comm_set_sniff_interval(SNIFF_INTERVAL_REDUCED);
 }
 
 static void deinit() {
