@@ -32,7 +32,7 @@ static void main_window_load(Window *window) {
   text_layer_set_text_alignment(s_time_layer, GTextAlignmentCenter);
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_time_layer));
 
-  s_image_bitmap = gbitmap_create_with_resource(RESOURCE_ID_BLACK_PEBBLE_MAGNET_2);
+  s_image_bitmap = gbitmap_create_with_resource(RESOURCE_ID_BLACK_PEBBLE_MAGNET_2_BLACK);
   GRect imageDisplayRect = GRect(0, 0, 144, 110);
     // Use GCompOpClear to display the black portions of the image
   s_image_layer = bitmap_layer_create(imageDisplayRect);
@@ -179,9 +179,9 @@ static void init() {
 
   app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
 
+  setupAlgorithmForCutoffAndSampleInterval(20.0f, 0.01f);
   hpf filter = knock_detector_get_algorithm();
-  APP_LOG(APP_LOG_LEVEL_INFO, "FILTER fc value %f alpha value %f", filter.fc, filter.alpha);
-
+  //APP_LOG(APP_LOG_LEVEL_INFO, "FILTER fc value %i alpha value*100= %i", (int)filter.fc, (int)(filter.alpha*100)); //so this works
 }
 
 static void deinit() {
