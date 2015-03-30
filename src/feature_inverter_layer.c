@@ -106,7 +106,7 @@ static void knockDetected(uint32_t msSinceStart){
 }
 
 static void knockModeEnabled(bool nowEnabled){
-  layer_set_hidden(text_layer_get_layer(s_time_layer), !nowEnabled);
+  layer_set_hidden(text_layer_get_layer(s_time_layer), nowEnabled);
 }
 
 static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
