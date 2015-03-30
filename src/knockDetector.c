@@ -41,7 +41,7 @@ static uint32_t detector_MS_since_start(void){
 }
 
 static void stopRealtime(void);
-static void knockTimeout(void){
+static void knockTimeout(void *data){
   isRealtime = false; 
   realtimeModeTimeoutTimer = NULL;
   stopRealtime();
@@ -85,7 +85,7 @@ static void processDataPoint(AccelData dataPoint){
 
 		knockDetectedHandler(detector_MS_since_start());
 		extendKnockTimeOut();
-		
+
       	// APP_LOG(APP_LOG_LEVEL_DEBUG, "x %i y %i z %i, time %lu", dataPoint.x,dataPoint.y,dataPoint.z, (unsigned long)dataPoint.timestamp);
       	APP_LOG(APP_LOG_LEVEL_DEBUG, "newOutput %i input %i time %u", (int)alg.Yi, (int)nextZ, (unsigned int)msSinceLastKnock);
     }
