@@ -52,7 +52,7 @@ static void update_tappage(){
 
   for (int i = 0; i < numberOfExlaims; i++){
     buffer[3+i] = '!';
-    buffer[3+2] = '\0';
+    buffer[3+i+1] = '\0';
   }
 
    text_layer_set_text(s_time_layer, buffer); 
