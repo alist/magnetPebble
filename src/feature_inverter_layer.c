@@ -29,7 +29,7 @@ static void main_window_load(Window *window) {
   text_layer_set_text_alignment(s_time_layer, GTextAlignmentCenter);
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_time_layer));
 
-  s_image_bitmap = gbitmap_create_with_resource(RESOURCE_ID_PEBBLE_MAGNET_2_BLACK);
+  s_image_bitmap = gbitmap_create_with_resource(RESOURCE_ID_PEBBLE_MAGNET_2_BLACK_BLACK);
 
   GRect imageDisplayRect = GRect(0, 0, 144, 110);
     // Use GCompOpClear to display the black portions of the image

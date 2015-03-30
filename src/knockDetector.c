@@ -39,6 +39,17 @@ static uint32_t detector_MS_since_start(void){
 	return differenceMS;
 }
 
+static void stopRealtime(void);
+static void knockTimeout(void){
+  isRealtime = false; 
+  stopRealtime();
+}
+
+static void extendKnockTimeOut(void){
+  
+}
+
+
 static void processDataPoint(AccelData dataPoint){
 	int16_t nextZ = (dataPoint.z + abs(dataPoint.y)*(dataPoint.z > 0? 1 : -1));
 //first we apply algorithm
