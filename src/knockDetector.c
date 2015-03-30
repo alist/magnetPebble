@@ -13,6 +13,7 @@ time_t lastKnockTimeSeconds;
 uint16_t lastKnockTimeMiliSeconds;
 
 bool isRealtime = false;
+AppTimer *realtimeModeTimeoutTimer;
 
 uint16_t logIndex;
 
@@ -42,11 +43,15 @@ static uint32_t detector_MS_since_start(void){
 static void stopRealtime(void);
 static void knockTimeout(void){
   isRealtime = false; 
+  realtimeModeTimeoutTimer = NULL;
   stopRealtime();
 }
 
 static void extendKnockTimeOut(void){
-  
+	if (realtimeModeTimeoutTimer != NULL){
+		app_timer_cancel(realtimeModeTimeoutTimer);
+	}
+  	realtimeModeTimeoutTimer = app_timer_register(2000, knockTimeout, NULL);
 }
 
 
@@ -79,7 +84,8 @@ static void processDataPoint(AccelData dataPoint){
 		lastKnockTimeMiliSeconds = currentMS;
 
 		knockDetectedHandler(detector_MS_since_start());
-
+		extendKnockTimeOut();
+		
       	// APP_LOG(APP_LOG_LEVEL_DEBUG, "x %i y %i z %i, time %lu", dataPoint.x,dataPoint.y,dataPoint.z, (unsigned long)dataPoint.timestamp);
       	APP_LOG(APP_LOG_LEVEL_DEBUG, "newOutput %i input %i time %u", (int)alg.Yi, (int)nextZ, (unsigned int)msSinceLastKnock);
     }
@@ -105,6 +111,7 @@ static void startRealtime(void){
 	accel_data_service_subscribe(0, NULL); //sort don't know what this does
 
 	app_timer_register(alg.delT*1000, knock_detector_accel_update_timer_callback, NULL);
+	extendKnockTimeOut();
 }
 
 void accelTapHappened(AccelAxisType axis, int32_t direction){
