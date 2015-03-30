@@ -12,6 +12,7 @@ uint16_t knockDectionStartTimeMiliSeconds;
 time_t lastKnockTimeSeconds;
 uint16_t lastKnockTimeMiliSeconds;
 
+bool isRealtime = false;
 
 uint16_t logIndex;
 
@@ -59,6 +60,7 @@ static void processDataPoint(AccelData dataPoint){
 	//   	APP_LOG(APP_LOG_LEVEL_DEBUG, "newOutput %i input %i time %u logIndex %i", (int)alg.Yi, (int)nextZ, (unsigned int)msSinceLastKnock, logIndex);
 	// }
 
+	//it also seems most normal taps go into the device so && newOutput < 0
   if (abs(newOutput) > alg.minAccel*1000){
     if (msSinceLastKnock > (uint32_t)alg.minKnockSeparationMS){
 
@@ -79,19 +81,43 @@ static void knock_detector_accel_update_timer_callback(void *data){
 
 	processDataPoint(accel);
 
+	if (isRealtime){
+		app_timer_register(alg.delT*1000, knock_detector_accel_update_timer_callback, NULL);
+	}
+}
+
+static void startRealtime(void){
+	isRealtime = true;
+	accel_tap_service_unsubscribe();
+	
+	accel_service_set_sampling_rate(ACCEL_SAMPLING_100HZ); //does this change anything?
+	accel_data_service_subscribe(0, NULL); //sort don't know what this does
+
 	app_timer_register(alg.delT*1000, knock_detector_accel_update_timer_callback, NULL);
+}
+
+void accelTapHappened(AccelAxisType axis, int32_t direction){
+	if (isRealtime == false){
+		light_enable_interaction();
+		startRealtime();
+	}
+}
+
+static void stopRealtime(void){
+	isRealtime = false;
+
+	accel_data_service_unsubscribe();
+	accel_tap_service_subscribe(accelTapHappened);
 }
 
 static void start(void){
-	time_ms(&knockDectionStartTimeSeconds, &knockDectionStartTimeMiliSeconds);
+	accel_tap_service_subscribe(accelTapHappened);
 
-	accel_service_set_sampling_rate(ACCEL_SAMPLING_100HZ);
-	accel_data_service_subscribe(0, NULL);
-	app_timer_register(alg.delT*1000, knock_detector_accel_update_timer_callback, NULL);
+	time_ms(&knockDectionStartTimeSeconds, &knockDectionStartTimeMiliSeconds);
 }
 
 static void stop(void){
-
+	accel_tap_service_unsubscribe();
 }
 
 void knock_detector_subscribe(HTKnockHandler handler){
@@ -120,7 +146,7 @@ void knock_detector_setupAlgorithmForCutoffAndSampleInterval(double fc, double d
     
     alg.alpha = alpha;
     
-    alg.minAccel = 0.25f;
+    alg.minAccel = 0.30f;
     alg.minKnockSeparationMS = 100; 
 }
 

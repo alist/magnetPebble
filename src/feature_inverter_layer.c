@@ -160,6 +160,7 @@ static void init() {
 
   app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
 
+  //lower fc => bigger alpha
   knock_detector_setupAlgorithmForCutoffAndSampleInterval(18.0f, 0.01f);
   // hpf filter = knock_detector_get_algorithm();
   //APP_LOG(APP_LOG_LEVEL_INFO, "FILTER fc value %i alpha value*100= %i", (int)filter.fc, (int)(filter.alpha*100)); //so this works
