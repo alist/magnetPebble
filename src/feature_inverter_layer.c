@@ -45,6 +45,19 @@ static void main_window_load(Window *window) {
   layer_add_child(window_layer, inverter_layer_get_layer(s_inverter_layer));
 }
 
+int tappage = 0;
+static void update_tappage(){
+  int numberOfExlaims = tappage % 3;
+  char buffer[7] = "TAP";
+
+  for (int i = 0; i < numberOfExlaims; i++){
+    buffer[3+i] = '!';
+    buffer[3+2] = '\0';
+  }
+
+   text_layer_set_text(s_time_layer, buffer); 
+}
+
 static void update_time() {
   // Get a tm structure
   time_t temp = time(NULL); 
@@ -102,11 +115,18 @@ static void perceiveNow(){
 
 static void knockDetected(uint32_t msSinceStart){
   // APP_LOG(APP_LOG_LEVEL_INFO, "knock detect at MS %u", (uint) msSinceStart);
+  update_tappage();
   perceiveNow();
 }
 
 static void knockModeEnabled(bool nowEnabled){
-  layer_set_hidden(text_layer_get_layer(s_time_layer), nowEnabled);
+  if (nowEnabled){
+    update_tappage();
+  }else{
+    update_time();
+  }
+
+  // layer_set_hidden(text_layer_get_layer(s_time_layer), nowEnabled);
 }
 
 static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
