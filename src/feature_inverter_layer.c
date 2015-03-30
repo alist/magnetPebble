@@ -1,9 +1,6 @@
 #include "pebble.h"
 #include "knockDetector.h"
   
-#define ACCEL_STEP_MS 10
-#define MIN_TAP_PERIOD_MS 100
-
 #define TAP_HAPPENED 1
 
 
@@ -33,7 +30,7 @@ static void main_window_load(Window *window) {
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_time_layer));
 
   s_image_bitmap = gbitmap_create_with_resource(RESOURCE_ID_PEBBLE_MAGNET_2_BLACK);
-  
+
   GRect imageDisplayRect = GRect(0, 0, 144, 110);
     // Use GCompOpClear to display the black portions of the image
   s_image_layer = bitmap_layer_create(imageDisplayRect);
@@ -103,26 +100,11 @@ static void perceiveNow(){
   send_message();
 }
 
-static void processDataPoint(AccelData dataPoint){
-  if (abs(dataPoint.z) > 1500){
-    if (abs(dataPoint.timestamp - lastTapTime) > MIN_TAP_PERIOD_MS){
-      lastTapTime = dataPoint.timestamp;
-
-      perceiveNow();
-
-      // APP_LOG(APP_LOG_LEVEL_DEBUG, "x %i y %i z %i, time %lu", dataPoint.x,dataPoint.y,dataPoint.z, (unsigned long)dataPoint.timestamp);
-    }
-  }
+static void knockDetected(uint32_t msSinceStart){
+  // APP_LOG(APP_LOG_LEVEL_INFO, "knock detect at MS %u", (uint) msSinceStart);
+  perceiveNow();
 }
 
-static void timer_callback(void *data) {
-  AccelData accel = (AccelData) { .x = 0, .y = 0, .z = 0 };
-  accel_service_peek(&accel);
-
-  processDataPoint(accel);
-
-  app_timer_register(ACCEL_STEP_MS, timer_callback, NULL);
-}
 static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
   update_time();
 }
@@ -147,7 +129,7 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
 }
 
 static void outbox_failed_callback(DictionaryIterator *iterator, AppMessageResult reason, void *context) {
-  APP_LOG(APP_LOG_LEVEL_ERROR, "Outbox send failed!");
+  // APP_LOG(APP_LOG_LEVEL_ERROR, "Outbox send failed!");
 }
 
 static void outbox_sent_callback(DictionaryIterator *iterator, void *context) {
@@ -169,8 +151,6 @@ static void init() {
   });
   window_stack_push(s_main_window, true);
   
-  accel_data_service_subscribe(0, NULL);
-  app_timer_register(ACCEL_STEP_MS, timer_callback, NULL);
   tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
   update_time();
   
@@ -180,9 +160,10 @@ static void init() {
 
   app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
 
-  setupAlgorithmForCutoffAndSampleInterval(20.0f, 0.01f);
-  hpf filter = knock_detector_get_algorithm();
+  knock_detector_setupAlgorithmForCutoffAndSampleInterval(18.0f, 0.01f);
+  // hpf filter = knock_detector_get_algorithm();
   //APP_LOG(APP_LOG_LEVEL_INFO, "FILTER fc value %i alpha value*100= %i", (int)filter.fc, (int)(filter.alpha*100)); //so this works
+  knock_detector_subscribe(knockDetected);
 
   app_comm_set_sniff_interval(SNIFF_INTERVAL_REDUCED);
 }
