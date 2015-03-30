@@ -85,6 +85,7 @@ static void knock_detector_accel_update_timer_callback(void *data){
 static void start(void){
 	time_ms(&knockDectionStartTimeSeconds, &knockDectionStartTimeMiliSeconds);
 
+	accel_service_set_sampling_rate(ACCEL_SAMPLING_100HZ);
 	accel_data_service_subscribe(0, NULL);
 	app_timer_register(alg.delT*1000, knock_detector_accel_update_timer_callback, NULL);
 }
