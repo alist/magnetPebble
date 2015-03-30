@@ -20,7 +20,7 @@ uint16_t logIndex;
 hpf alg;
 
 HTKnockHandler knockDetectedHandler;
-
+HTKnockModeEnabledHandler knockModeEnabledHandler;
 //we can use this one to reduce power consumption by only triggering realtime updates after the first pebble 
 //void pebbleTapDetected(AccelAxisType axis, int32_t direction); 
 
@@ -51,7 +51,7 @@ static void extendKnockTimeOut(void){
 	if (realtimeModeTimeoutTimer != NULL){
 		app_timer_cancel(realtimeModeTimeoutTimer);
 	}
-  	realtimeModeTimeoutTimer = app_timer_register(2000, knockTimeout, NULL);
+  	realtimeModeTimeoutTimer = app_timer_register(3000, knockTimeout, NULL);
 }
 
 
@@ -106,6 +106,10 @@ static void knock_detector_accel_update_timer_callback(void *data){
 static void startRealtime(void){
 	isRealtime = true;
 	accel_tap_service_unsubscribe();
+
+	if (knockModeEnabledHandler != NULL){
+		knockModeEnabledHandler(isRealtime);
+	}
 	
 	accel_service_set_sampling_rate(ACCEL_SAMPLING_100HZ); //does this change anything?
 	accel_data_service_subscribe(0, NULL); //sort don't know what this does
@@ -123,6 +127,9 @@ void accelTapHappened(AccelAxisType axis, int32_t direction){
 
 static void stopRealtime(void){
 	isRealtime = false;
+	if (knockModeEnabledHandler != NULL){
+		knockModeEnabledHandler(isRealtime);
+	}
 
 	accel_data_service_unsubscribe();
 	accel_tap_service_subscribe(accelTapHappened);
@@ -138,8 +145,10 @@ static void stop(void){
 	accel_tap_service_unsubscribe();
 }
 
-void knock_detector_subscribe(HTKnockHandler handler){
+void knock_detector_subscribe(HTKnockHandler handler,HTKnockModeEnabledHandler knockModeHandler){
 	knockDetectedHandler = handler;
+	knockModeEnabledHandler = knockModeHandler;
+	
 	if (knockDetectedHandler != NULL){
 		start();
 	}else{

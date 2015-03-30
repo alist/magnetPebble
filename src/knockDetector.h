@@ -19,9 +19,10 @@ typedef struct{
 //submit a feature request for proxying raw accel if you need it
 
 typedef void (*HTKnockHandler)(uint32_t knockMSSinceBegin);
+typedef void (*HTKnockModeEnabledHandler)(bool knockModeIsOn);
 
 //adding a handler immediately begins detection
-void knock_detector_subscribe(HTKnockHandler handler);
+void knock_detector_subscribe(HTKnockHandler handler, HTKnockModeEnabledHandler knockModeHandler);
 
 //removing handlers disables detection
 //stops energy usage associated

@@ -105,6 +105,10 @@ static void knockDetected(uint32_t msSinceStart){
   perceiveNow();
 }
 
+static void knockModeEnabled(bool nowEnabled){
+  layer_set_hidden(text_layer_get_layer(s_time_layer), !nowEnabled);
+}
+
 static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
   update_time();
 }
@@ -164,7 +168,7 @@ static void init() {
   knock_detector_setupAlgorithmForCutoffAndSampleInterval(18.0f, 0.01f);
   // hpf filter = knock_detector_get_algorithm();
   //APP_LOG(APP_LOG_LEVEL_INFO, "FILTER fc value %i alpha value*100= %i", (int)filter.fc, (int)(filter.alpha*100)); //so this works
-  knock_detector_subscribe(knockDetected);
+  knock_detector_subscribe(knockDetected,knockModeEnabled);
 
   app_comm_set_sniff_interval(SNIFF_INTERVAL_REDUCED);
 }
