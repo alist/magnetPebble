@@ -51,7 +51,7 @@ static void extendKnockTimeOut(void){
 	if (realtimeModeTimeoutTimer != NULL){
 		app_timer_cancel(realtimeModeTimeoutTimer);
 	}
-  	realtimeModeTimeoutTimer = app_timer_register(3000, knockTimeout, NULL);
+  	realtimeModeTimeoutTimer = app_timer_register(2000, knockTimeout, NULL);
 }
 
 
@@ -111,8 +111,8 @@ static void startRealtime(void){
 		knockModeEnabledHandler(isRealtime);
 	}
 	
-	accel_service_set_sampling_rate(ACCEL_SAMPLING_100HZ); //does this change anything?
-	accel_data_service_subscribe(0, NULL); //sort don't know what this does
+	accel_data_service_subscribe(0, NULL); //activates equipment
+	accel_service_set_sampling_rate(ACCEL_SAMPLING_100HZ); //has to be #2
 
 	app_timer_register(alg.delT*1000, knock_detector_accel_update_timer_callback, NULL);
 	extendKnockTimeOut();

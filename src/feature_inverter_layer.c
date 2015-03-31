@@ -45,17 +45,9 @@ static void main_window_load(Window *window) {
   layer_add_child(window_layer, inverter_layer_get_layer(s_inverter_layer));
 }
 
-int tappage = 0;
 static void update_tappage(){
-  int numberOfExlaims = tappage % 3;
-  char buffer[7] = "TAP";
-
-  for (int i = 0; i < numberOfExlaims; i++){
-    buffer[3+i] = '!';
-    buffer[3+i+1] = '\0';
-  }
-
-   text_layer_set_text(s_time_layer, buffer); 
+  static char buffer0[] = "TAP";
+  text_layer_set_text(s_time_layer, buffer0); 
 }
 
 static void update_time() {
@@ -115,8 +107,8 @@ static void perceiveNow(){
 
 static void knockDetected(uint32_t msSinceStart){
   // APP_LOG(APP_LOG_LEVEL_INFO, "knock detect at MS %u", (uint) msSinceStart);
-  update_tappage();
   perceiveNow();
+  vibes_cancel();
 }
 
 static void knockModeEnabled(bool nowEnabled){
@@ -184,8 +176,8 @@ static void init() {
 
   app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
 
-  //lower fc => bigger alpha
-  knock_detector_setupAlgorithmForCutoffAndSampleInterval(18.0f, 0.01f);
+  //lower fc => bigger alpha (low is ~18, high is 25)
+  knock_detector_setupAlgorithmForCutoffAndSampleInterval(25.0f, 0.01f);
   // hpf filter = knock_detector_get_algorithm();
   //APP_LOG(APP_LOG_LEVEL_INFO, "FILTER fc value %i alpha value*100= %i", (int)filter.fc, (int)(filter.alpha*100)); //so this works
   knock_detector_subscribe(knockDetected,knockModeEnabled);
@@ -194,7 +186,7 @@ static void init() {
 }
 
 static void deinit() {
-  accel_tap_service_unsubscribe();
+  knock_detector_unsubscribe();
   window_destroy(s_main_window);
 }
 
